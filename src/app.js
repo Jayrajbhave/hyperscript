@@ -76,4 +76,5 @@ if (!process.env.VERCEL) {
 }
 
 // Export Express application for Vercel
+
 module.exports = app;
