@@ -1,5 +1,8 @@
-"functions": {
-  "src/app.js": {
-    "includeFiles": "src/views/**"
+
+{
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "src/views/**"
+    }
   }
 }
