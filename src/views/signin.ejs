@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head.ejs') %>
+    <title>Sign in | HyperScript</title>
+</head>
+<body>
+    <%- include('./partials/navbar.ejs') %>
+    <main class="container auth-shell py-5">
+        <section class="auth-card">
+            <span class="small fw-bold text-uppercase" style="color: var(--brand); letter-spacing: .12em;">Welcome back</span>
+            <h1 class="h2 fw-bold mt-2">Sign in to HyperScript</h1>
+            <p class="text-secondary mb-4">Pick up where your next great story begins.</p>
+            <form action="/user/signin" method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-semibold">Email address</label>
+                    <input type="email" id="email" name="email" class="form-control" autocomplete="email" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-semibold">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill w-100 py-2">Sign in</button>
+            </form>
+            <p class="text-secondary text-center mt-4 mb-0">New here? <a href="/user/signup" class="fw-semibold text-decoration-none" style="color: var(--brand);">Create an account</a></p>
+        </section>
+    </main>
+    <%- include('./partials/script.ejs') %>
+    <%- include('./partials/footer.ejs') %>
+</body>
+</html>

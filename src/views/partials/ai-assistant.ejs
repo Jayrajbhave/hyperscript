@@ -1,0 +1,143 @@
+<section class="ai-assistant mb-4" aria-labelledby="ai-assistant-title">
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+        <div>
+            <span class="ai-assistant-kicker">AI writing partner</span>
+            <h2 id="ai-assistant-title" class="h5 fw-bold mt-1 mb-1">Need a starting point?</h2>
+            <p class="small text-secondary mb-0">Brainstorm, shape, or polish your story with Groq.</p>
+        </div>
+        <span class="ai-assistant-mark" aria-hidden="true">✦</span>
+    </div>
+    <div id="ai-assistant-form">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <label for="ai-mode" class="visually-hidden">Assistant action</label>
+                <select id="ai-mode" class="form-select" aria-label="Assistant action">
+                    <option value="draft">Draft a post</option>
+                    <option value="improve">Improve my draft</option>
+                    <option value="outline">Create an outline</option>
+                    <option value="title">Suggest a title</option>
+                </select>
+            </div>
+            <div class="col-md-8">
+                <label for="ai-instruction" class="visually-hidden">Your idea or instructions</label>
+                <input id="ai-instruction" class="form-control" type="text" maxlength="1500" placeholder="What would you like to write about?" required>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+            <button id="ai-generate" type="button" class="btn btn-primary rounded-pill px-4">
+                <span class="ai-button-label">Generate with Groq</span>
+            </button>
+            <span id="ai-status" class="small text-secondary" role="status" aria-live="polite"></span>
+        </div>
+    </div>
+    <div id="ai-result-wrap" class="ai-result-wrap mt-3" hidden>
+        <label for="ai-result" class="form-label small fw-semibold mb-2">Your AI suggestion</label>
+        <pre id="ai-result" class="ai-result mb-3"></pre>
+        <button id="ai-apply" type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3">Use in story</button>
+    </div>
+</section>
+
+<style>
+    .ai-assistant {
+        padding: 1.25rem;
+        border: 1px solid #e4e3fb;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #f8f7ff, #fff 75%);
+    }
+
+    .ai-assistant-kicker {
+        color: var(--brand);
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .ai-assistant-mark {
+        display: grid;
+        width: 2.5rem;
+        height: 2.5rem;
+        place-items: center;
+        border-radius: 0.8rem;
+        background: #ecebff;
+        color: var(--brand);
+        font-size: 1.3rem;
+    }
+
+    .ai-result-wrap {
+        padding-top: 1rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .ai-result {
+        max-height: 320px;
+        overflow: auto;
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 0.75rem;
+        background: #fff;
+        color: var(--ink);
+        font: inherit;
+        white-space: pre-wrap;
+    }
+</style>
+
+<script>
+    (() => {
+        const form = document.getElementById("ai-assistant-form");
+        const mode = document.getElementById("ai-mode");
+        const instruction = document.getElementById("ai-instruction");
+        const button = document.getElementById("ai-generate");
+        const status = document.getElementById("ai-status");
+        const resultWrap = document.getElementById("ai-result-wrap");
+        const result = document.getElementById("ai-result");
+        const applyButton = document.getElementById("ai-apply");
+        let generatedText = "";
+
+        button.addEventListener("click", async () => {
+            if (!instruction.value.trim()) {
+                instruction.focus();
+                status.textContent = "Enter an idea or instruction first.";
+                return;
+            }
+
+            button.disabled = true;
+            status.textContent = "Groq is working on it…";
+            resultWrap.hidden = true;
+
+            try {
+                const response = await fetch("/blog/ai-assist", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        mode: mode.value,
+                        instruction: instruction.value.trim(),
+                        title: document.getElementById("title").value,
+                        body: document.getElementById("body").value,
+                    }),
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.error || "The AI assistant could not complete this request.");
+                }
+
+                generatedText = payload.result;
+                result.textContent = generatedText;
+                applyButton.textContent = mode.value === "title" ? "Use as title" : "Replace story text";
+                resultWrap.hidden = false;
+                status.textContent = "Suggestion ready. Review it before applying.";
+            } catch (error) {
+                status.textContent = error.message || "The AI assistant could not complete this request.";
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        applyButton.addEventListener("click", () => {
+            const target = document.getElementById(mode.value === "title" ? "title" : "body");
+            target.value = generatedText;
+            target.focus();
+            status.textContent = mode.value === "title" ? "Title updated." : "Story text updated.";
+        });
+    })();
+</script>

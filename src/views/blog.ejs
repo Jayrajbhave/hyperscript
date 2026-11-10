@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head.ejs') %>
+    <title><%= blog.title %> | HyperScript</title>
+</head>
+<body>
+    <%- include('./partials/navbar.ejs') %>
+    <main class="container py-5">
+        <article class="blog-article mx-auto">
+            <a href="/" class="text-decoration-none small fw-semibold" style="color: var(--brand);">&larr; Back to stories</a>
+            <div class="mt-4 mb-4">
+                <span class="text-uppercase small fw-bold" style="color: var(--brand); letter-spacing: .12em;">Featured story</span>
+                <h1 class="display-5 fw-bold mt-2 mb-4"><%= blog.title %></h1>
+                <% if (blog.coverImageUrl) { %>
+                    <img src="<%= blog.coverImageUrl %>" class="blog-cover shadow-sm" alt="<%= blog.title %>">
+                <% } %>
+            </div>
+            <div class="d-flex align-items-center gap-3 py-3 mb-4 border-bottom">
+                <img src="<%= blog.createdBy.profileImageUrl %>" width="48" height="48" class="rounded-circle object-fit-cover" alt="">
+                <div>
+                    <div class="fw-semibold"><%= blog.createdBy.fullname %></div>
+                    <div class="small text-secondary">Story contributor</div>
+                </div>
+            </div>
+            <div class="blog-copy mb-4"><%= blog.body %></div>
+            <% if (locals.user && blog.createdBy._id.toString() === user._id.toString()) { %>
+                <div class="d-flex gap-2 py-3 border-top">
+                    <a href="/blog/<%= blog._id %>/edit" class="btn btn-outline-primary rounded-pill px-3">Edit story</a>
+                    <form action="/blog/<%= blog._id %>/delete" method="post" onsubmit="return confirm('Delete this blog permanently?');">
+                        <button type="submit" class="btn btn-outline-danger rounded-pill px-3">Delete</button>
+                    </form>
+                </div>
+            <% } %>
+        </article>
+
+        <section class="comments-panel mx-auto mt-5" aria-labelledby="comments-title">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 id="comments-title" class="h4 fw-bold mb-0">Conversation</h2>
+                <span class="badge rounded-pill text-bg-light"><%= comments.length %> comments</span>
+            </div>
+            <% if (locals.user) { %>
+                <form action="/blog/comment/<%= blog._id %>" method="post" class="bg-white border rounded-4 p-3 p-md-4 mb-4">
+                    <label for="content" class="form-label fw-semibold">Join the conversation</label>
+                    <textarea id="content" name="content" class="form-control mb-3" rows="3" placeholder="Share a thoughtful comment..." required maxlength="2000"></textarea>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Post comment</button>
+                </form>
+            <% } else { %>
+                <div class="bg-white border rounded-4 p-4 mb-4">
+                    <p class="mb-0 text-secondary">Sign in to join the conversation. <a href="/user/signin" class="fw-semibold text-decoration-none">Sign in</a></p>
+                </div>
+            <% } %>
+            <div class="d-grid gap-3">
+                <% comments.forEach(comment => { %>
+                    <div class="bg-white border rounded-4 p-3 p-md-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <img src="<%= comment.createdBy.profileImageUrl %>" width="36" height="36" class="rounded-circle object-fit-cover" alt="">
+                            <span class="fw-semibold"><%= comment.createdBy.fullname %></span>
+                        </div>
+                        <p class="mb-0 text-secondary" style="white-space: pre-wrap;"><%= comment.content %></p>
+                    </div>
+                <% }) %>
+            </div>
+        </section>
+    </main>
+    <%- include('./partials/script.ejs') %>
+    <%- include('./partials/footer.ejs') %>
+</body>
+</html>
